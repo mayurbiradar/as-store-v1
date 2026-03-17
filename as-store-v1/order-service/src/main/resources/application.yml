@@ -1,0 +1,27 @@
+# product-service/src/main/resources/application.yml
+# -----------------------------------------------------------------------------
+server:
+  port: ${SERVER_PORT:8083}                      # << Port (default 8083)
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/asj}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
+    database-platform: ${JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+
+  application:
+    name: ${SPRING_APPLICATION_NAME:order-service}
+
+flyway:
+  enabled: ${FLYWAY_ENABLED:true}
+  locations: ${FLYWAY_LOCATIONS:classpath:db/migration}
+
+jwt:
+  secret: ${JWT_SECRET:auth_service_jwt_secret_change_in_prod_to_strong_secret_at_least_32_chars_long}

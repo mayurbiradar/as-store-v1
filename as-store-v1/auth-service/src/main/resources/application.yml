@@ -1,0 +1,28 @@
+# auth-service/src/main/resources/application.yml
+server:
+  port: ${SERVER_PORT:8081}                 # 8081 by default, overridable via env
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:asj}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}        # keep "update" for dev, change in prod
+    show-sql: ${JPA_SHOW_SQL:false}
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  application:
+    name: auth-service
+
+jwt:
+  secret: ${JWT_SECRET:auth_service_jwt_secret_change_in_prod_to_strong_secret_at_least_32_chars_long}
+  access-token-expiration-minutes: ${JWT_ACCESS_EXPIRATION_MINUTES:120}
+  refresh-token-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:30}

@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------
+#  api-gateway/src/main/resources/application.yml
+#
+#  Gateway listens on port 9090 (Tomcat / WebMVC stack)
+# ---------------------------------------------------------------
+server:
+  port: ${SERVER_PORT:9090}
+
+spring:
+  application:
+    name: api-gateway
+
+  # -------------------------------------------------------------
+  #  Spring Cloud Gateway – 4.0 WebMVC configuration
+  # -------------------------------------------------------------
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            # ---------- Auth Service ---------------------------
+            - id: auth-service
+              uri: http://auth-service:8081
+              predicates:
+                - Path=/api/auth/**
+
+            # ---------- Product Service -----------------------------
+            # Matches both product and image paths
+            - id: product-service
+              uri: http://product-service:8082
+              predicates:
+                - Path=/api/products/**, /api/images/**
+              # Optional: uncomment if the product service does not expect `/api/<...>`
+              # filters:
+              #   - StripPrefix=2
+
+            # ---------- Order Service -------------------------------
+            - id: order-service
+              uri: http://order-service:8083
+              predicates:
+                - Path=/api/orders/**
+
+# -------------------------------------------------------------
+#  JWT & Security (kept on the root level – accessible from env)
+# -------------------------------------------------------------
+jwt:
+  secret: ${JWT_SECRET:auth_service_jwt_secret_change_in_prod_to_strong_secret_at_least_32_chars_long}
+
+# -------------------------------------------------------------
+#  Logging – useful when debugging WebMVC routing
+# -------------------------------------------------------------
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.web.servlet: DEBUG
+    org.springframework.web.client.RestTemplate: DEBUG

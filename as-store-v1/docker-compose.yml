@@ -1,0 +1,110 @@
+# /home/<user>/myshop/docker-compose.yml
+# =============================================================
+
+version: "3.9"
+
+services:
+
+  # ---------- PostgreSQL ----------
+  postgres:
+    image: postgres:16
+    container_name: as_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: asj
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"          # optional – expose for local DB tools
+
+  # ---------- API Gateway ----------
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    restart: on-failure
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-superSecretKey}
+      AUTH_SERVICE_URL: http://auth-service:8081
+      PRODUCT_SERVICE_URL: http://product-service:8082
+      ORDER_SERVICE_URL: http://order-service:8083
+      SERVER_PORT: 9090      # <-- gateway listens on 9090
+    depends_on:
+      - auth-service
+      - product-service
+      - order-service
+    ports:
+      - "9090:9090"         # public entry point
+
+  # ---------- Auth Service ----------
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    restart: on-failure
+    environment:
+      # --- Common DB connection ------------------------------------
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: asj
+      DB_USER: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-root}   # override by the global .env
+      # --- Port ----------------------------------------------------
+      SERVER_PORT: 8081
+      # --- JWT -----------------------------------------------------
+      JWT_SECRET: ${JWT_SECRET:-auth_service_jwt_secret_change_in_prod_to_strong_secret_at_least_32_chars_long}
+      JWT_ACCESS_EXPIRATION_MINUTES: 120
+      JWT_REFRESH_EXPIRATION_DAYS: 30
+    depends_on:
+      - postgres
+    ports:
+      - "8081:8081"
+
+  # ---------- Product Service ----------
+  product-service:
+    build: ./product-service                          # Dockerfile in this directory
+    container_name: product-service
+    restart: on-failure
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/asj           # <-- DNS name of the Postgres container
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      JWT_SECRET: ${JWT_SECRET:-auth_service_jwt_secret_change_in_prod_to_strong_secret_at_least_32_chars_long}
+      SERVER_PORT: 8082
+    depends_on:
+      - postgres
+    ports:
+      - "8082:8082"
+
+  # ---------- Order Service ----------
+  order-service:
+    build: ./order-service                           # Dockerfile in this directory
+    container_name: order-service
+    restart: on-failure
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/asj
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      JWT_SECRET: ${JWT_SECRET:-auth_service_jwt_secret_change_in_prod_to_strong_secret_at_least_32_chars_long}
+      SERVER_PORT: 8083
+    depends_on:
+      - postgres
+    ports:
+      - "8083:8083"
+
+  # ---------- Front‑end ----------
+  frontend:
+    build: ./frontend
+    container_name: as-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_GATEWAY_ENDPOINT: http://api-gateway:9090/api   # <-- API prefix
+    depends_on:
+      - api-gateway
+    ports:
+      # "5173:5173"           # Vite dev server
+      # Uncomment below for a prod build that serves static files on port 80
+      - "80:80"
+
+volumes:
+  pgdata:            # persists DB between runs
