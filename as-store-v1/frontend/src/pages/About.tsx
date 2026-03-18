@@ -18,8 +18,8 @@ export default function About() {
         Discover the beauty and craftsmanship that set AS Store apart. Thank you for choosing us to be a part of your story.
       </p>
       <p className="text-lg text-gray-700 mt-4">
-        Contact us: <a href="mailto:mr.mayurbiradar@gmail.com" className="text-blue-600 underline">mr.mayurbiradar@gmail.com</a><br />
-        Mobile: <a href="tel:9021901050" className="text-blue-600 underline">9021901050</a>
+        Contact us: <a href={`mailto:${import.meta.env.VITE_EMAIL}`} className="text-blue-600 underline">{import.meta.env.VITE_EMAIL}</a><br />
+        Mobile: <a href={`tel:${import.meta.env.VITE_MOBILE}`} className="text-blue-600 underline">{import.meta.env.VITE_MOBILE}</a>
       </p>
     </div>
   );

@@ -61,7 +61,6 @@ export default function ProductDetail() {
         setRelatedProducts(related);
       } catch (error) {
         console.error('Error fetching product:', error);
-        addToast('Failed to load product details', 'error');
         navigate('/collection');
       } finally {
         setLoading(false);
@@ -71,7 +70,7 @@ export default function ProductDetail() {
     if (productId) {
       fetchProduct();
     }
-  }, [productId, addToast, navigate]);
+  }, [productId, navigate]);
 
   const handleAddToCart = () => {
     if (!product) return;

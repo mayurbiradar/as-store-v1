@@ -98,7 +98,9 @@ services:
     container_name: as-frontend
     restart: unless-stopped
     environment:
-      VITE_API_GATEWAY_ENDPOINT: http://api-gateway:9090/api   # <-- API prefix
+      VITE_API_GATEWAY_ENDPOINT: ${VITE_API_GATEWAY_ENDPOINT:-http://api-gateway:9090}
+      VITE_EMAIL: ${VITE_EMAIL:-mr.mayurbiradar@gmail.com}
+      VITE_MOBILE: ${VITE_MOBILE:-+91 9021901050}
     depends_on:
       - api-gateway
     ports:

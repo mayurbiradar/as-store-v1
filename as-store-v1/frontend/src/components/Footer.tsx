@@ -42,7 +42,8 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center text-purple-200 text-sm">
             <div className="flex flex-col items-center md:items-start">
               <p>&copy; {currentYear} Akshata's Store. All rights reserved.</p>
-              <p className="mt-2">Designed and developed by <span className="font-semibold">Mayur Biradar</span> (<a href="mailto:mr.mayurbiradar@gmail.com" className="text-blue-300 underline">mr.mayurbiradar@gmail.com</a>)</p>
+              <p className="mt-2">Designed and developed by <span className="font-semibold">Mayur Biradar</span> (<a href={`mailto:${import.meta.env.VITE_EMAIL}`} className="text-blue-300 underline">{import.meta.env.VITE_EMAIL}</a>)</p>
+              <p className="mt-2">Mobile: <a href={`tel:${import.meta.env.VITE_MOBILE}`} className="text-blue-300 underline">{import.meta.env.VITE_MOBILE}</a></p>
               <p className="mt-2">Made in <span role="img" aria-label="love">❤️</span> India</p>
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
