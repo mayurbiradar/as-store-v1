@@ -7,7 +7,7 @@ export default function Header() {
   const { cart } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useUser();
-  const isLoggedIn = !!localStorage.getItem('accessToken');
+  const isLoggedIn = !!localStorage.getItem('accessToken') && user;
   const isAdmin = isLoggedIn && user && user.role === 'admin';
 
   // No localStorage user logic; rely on context user for admin icon visibility
@@ -128,13 +128,13 @@ export default function Header() {
             >
               🏠 Home
             </Link>
-            <a
-              href="#collection"
+            <Link
+              to="/collection"
               className="block px-3 py-2 bg-yellow-500 text-gray-900 rounded-lg font-bold hover:bg-yellow-600 transition text-sm"
               onClick={() => setIsMenuOpen(false)}
             >
               📦 Collection
-            </a>
+            </Link>
             <Link
               to="/about"
               className="block px-3 py-2 bg-yellow-500 text-gray-900 rounded-lg font-bold hover:bg-yellow-600 transition text-sm"
@@ -152,6 +152,7 @@ export default function Header() {
             <Link
               to="/orders"
               className="block px-3 py-2 bg-yellow-500 text-gray-900 rounded-lg font-bold hover:bg-yellow-600 transition text-sm"
+            onClick={() => { setIsMenuOpen(false); window.scrollTo({ top: 0, left: 0, behavior: 'smooth' }); }}
             >
               My Orders
             </Link>

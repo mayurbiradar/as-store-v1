@@ -20,23 +20,23 @@ spring:
           routes:
             # ---------- Auth Service ---------------------------
             - id: auth-service
-              uri: http://auth-service:8081
+              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
               predicates:
                 - Path=/api/auth/**
 
             # ---------- Product Service -----------------------------
             # Matches both product and image paths
             - id: product-service
-              uri: http://product-service:8082
+              uri: ${PRODUCT_SERVICE_URL:http://localhost:8082}
               predicates:
-                - Path=/api/products/**, /api/images/**
+                - Path=/api/products/**, /images/**
               # Optional: uncomment if the product service does not expect `/api/<...>`
               # filters:
               #   - StripPrefix=2
 
             # ---------- Order Service -------------------------------
             - id: order-service
-              uri: http://order-service:8083
+              uri: ${ORDER_SERVICE_URL:http://localhost:8083}
               predicates:
                 - Path=/api/orders/**
 

@@ -349,12 +349,12 @@ function CartItemCard({ item, isSelected, onSelect, onUpdateQuantity, onRemove }
     : item.image;
 
   return (
-    <div className={`bg-white/60 backdrop-blur-sm rounded-2xl p-6 border transition-all duration-300 shadow-lg hover:shadow-xl ${
+    <div className={`bg-white/60 backdrop-blur-sm rounded-2xl p-4 md:p-6 border transition-all duration-300 shadow-lg hover:shadow-xl ${
       isSelected ? 'border-purple-400 bg-white/80' : 'border-white/20'
     }`}>
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
         {/* Selection Checkbox */}
-        <div className="flex items-center">
+        <div className="flex items-center md:self-start">
           <input
             type="checkbox"
             checked={isSelected}
@@ -364,7 +364,7 @@ function CartItemCard({ item, isSelected, onSelect, onUpdateQuantity, onRemove }
         </div>
 
         {/* Product Image */}
-        <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl overflow-hidden flex-shrink-0">
+        <div className="w-full md:w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl overflow-hidden flex-shrink-0 md:self-start">
           <img
             src={imageUrl}
             alt={item.name}
@@ -376,21 +376,21 @@ function CartItemCard({ item, isSelected, onSelect, onUpdateQuantity, onRemove }
         <div className="flex-1">
           <Link
             to={`/product/${item.id}`}
-            className="text-xl font-bold text-gray-800 hover:text-purple-700 transition-colors line-clamp-2"
+            className="text-lg md:text-xl font-bold text-gray-800 hover:text-purple-700 transition-colors line-clamp-2"
           >
             {item.name}
           </Link>
 
-          <div className="flex items-center gap-4 mt-2 mb-4">
-            <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 mb-4">
+            <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
               ₹{item.price.toLocaleString('en-IN')}
             </span>
             <span className="text-sm text-gray-500">per item</span>
           </div>
 
-          {/* Quantity Controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          {/* Quantity Controls and Actions */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
               <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
                 <button
                   onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
@@ -407,14 +407,14 @@ function CartItemCard({ item, isSelected, onSelect, onUpdateQuantity, onRemove }
                   +
                 </button>
               </div>
-              <span className="text-lg font-bold text-gray-700">
+              <span className="text-base md:text-lg font-bold text-gray-700">
                 Subtotal: ₹{(item.price * item.quantity).toLocaleString('en-IN')}
               </span>
             </div>
 
             <button
               onClick={() => onRemove(item.id)}
-              className="px-4 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-all duration-300 transform hover:scale-105"
+              className="px-4 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
             >
               Remove
             </button>

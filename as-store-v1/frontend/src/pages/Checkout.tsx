@@ -4,12 +4,14 @@ import { useCart } from '../context/CartContext'
 import type { CartItem } from '../context/CartContext'
 import { API_BASE_URL } from "../constants";
 import { useToast } from '../context/ToastContext';
+import { useUser } from '../context/UserContext';
 
 export default function Checkout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { cart, clearCart, addOrder } = useCart()
   const { addToast } = useToast();
+  const { user } = useUser();
   const [loading, setLoading] = useState(false);
 
   // Get selected items from navigation state, fallback to all cart items
@@ -20,6 +22,10 @@ export default function Checkout() {
       navigate('/collection');
     }
   }, [cart, navigate]);
+
+  useEffect(() => {
+    fetchAddresses();
+  }, [user?.id]);
 
   if (!cart || cart.length === 0) {
     return null;
@@ -35,6 +41,22 @@ export default function Checkout() {
     state: '',
     pincode: '',
   })
+
+  interface Address {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    pincode: string;
+  }
+
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -63,7 +85,12 @@ export default function Checkout() {
           ? item.image.replace(API_BASE_URL, '')
           : item.image || ''
       }));
-      const addressPayload = {
+      const selectedAddr = selectedAddressId && selectedAddressId !== 'new' ? addresses.find(addr => addr.id === selectedAddressId) : null;
+      const addressPayload = selectedAddr ? {
+        ...selectedAddr,
+        userId,
+        isDeleted: false
+      } : {
         ...formData,
         userId,
         isDeleted: false
@@ -98,14 +125,70 @@ export default function Checkout() {
     }
   }
 
+  const fetchAddresses = async () => {
+    if (!user?.id) return;
+
+    setLoadingAddresses(true);
+    try {
+      const token = localStorage.getItem('accessToken');
+      const res = await fetch(`${API_BASE_URL}/api/orders/users/${user.id}/addresses`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      setAddresses(data);
+      if (data.length > 0) {
+        handleAddressSelect(data[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching addresses:', error);
+      setAddresses([]);
+    } finally {
+      setLoadingAddresses(false);
+    }
+  };
+
+  const handleAddressSelect = (addressId: string | null) => {
+    setSelectedAddressId(addressId);
+    if (addressId === 'new') {
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        pincode: '',
+      });
+      return;
+    }
+    if (addressId) {
+      const selectedAddress = addresses.find(addr => addr.id === addressId);
+      if (selectedAddress) {
+        setFormData({
+          firstName: selectedAddress.firstName,
+          lastName: selectedAddress.lastName,
+          email: selectedAddress.email,
+          phone: selectedAddress.phone,
+          address: selectedAddress.address,
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          pincode: selectedAddress.pincode,
+        });
+      }
+    }
+  };
+
   const subtotal = selectedItems.reduce((total: number, item: CartItem) => total + (item.price * item.quantity), 0);
   const shipping = 0; // Always free shipping
   const tax = Math.round((subtotal + shipping) * 0.03); // GST 3%
   const total = subtotal + shipping + tax;
 
-  const isFormValid = formData.firstName && formData.lastName && formData.email &&
+  const isFormValid = (selectedAddressId && selectedAddressId !== 'new') || (formData.firstName && formData.lastName && formData.email &&
                      formData.phone && formData.address && formData.city &&
-                     formData.state && formData.pincode;
+                     formData.state && formData.pincode);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50/30">
@@ -173,6 +256,52 @@ export default function Checkout() {
                     📦 Shipping Information
                   </h2>
 
+                  {/* Address Selection */}
+                  {user?.id && (
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-gray-700 mb-4">Select Delivery Address</h3>
+                      {loadingAddresses ? (
+                        <div className="text-center py-4">Loading addresses...</div>
+                      ) : (
+                        <div className="space-y-3">
+                          {addresses.map((addr) => (
+                            <label key={addr.id} className="block">
+                              <input
+                                type="radio"
+                                name="address"
+                                value={addr.id}
+                                checked={selectedAddressId === addr.id}
+                                onChange={() => handleAddressSelect(addr.id)}
+                                className="mr-3"
+                              />
+                              <div className="inline-block bg-gray-50 p-3 rounded-lg border cursor-pointer hover:bg-gray-100 transition">
+                                <div className="font-medium">{addr.firstName} {addr.lastName}</div>
+                                <div className="text-sm text-gray-600">{addr.address}, {addr.city}, {addr.state} - {addr.pincode}</div>
+                                <div className="text-sm text-gray-600">{addr.phone} | {addr.email}</div>
+                              </div>
+                            </label>
+                          ))}
+                          <label className="block">
+                            <input
+                              type="radio"
+                              name="address"
+                              value="new"
+                              checked={selectedAddressId === 'new' || selectedAddressId === null}
+                              onChange={() => handleAddressSelect('new')}
+                              className="mr-3"
+                            />
+                            <div className="inline-block bg-blue-50 p-3 rounded-lg border cursor-pointer hover:bg-blue-100 transition">
+                              <div className="font-medium text-blue-700">+ Add New Address</div>
+                              <div className="text-sm text-blue-600">Enter delivery details below</div>
+                            </div>
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {selectedAddressId === 'new' || selectedAddressId === null ? (
+                  <>
                   {/* Personal Details */}
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold text-gray-700 mb-4">Personal Details</h3>
@@ -307,6 +436,8 @@ export default function Checkout() {
                       </div>
                     </div>
                   </div>
+                  </>
+                  ) : null}
                 </div>
 
                 {/* Payment Method */}

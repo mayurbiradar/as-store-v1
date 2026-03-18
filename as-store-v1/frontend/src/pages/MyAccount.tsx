@@ -75,7 +75,7 @@ export default function MyAccount() {
 
     try {
       const token = localStorage.getItem('accessToken') || '';
-      const res = await fetch(`${import.meta.env.VITE_API_GATEWAY_ENDPOINT || ''}/api/orders/users/${user.id}/addresses/${addressId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/orders/users/${user.id}/addresses/${addressId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -39,14 +39,12 @@ export default function Collection() {
         setFilteredProducts(productList);
       } catch (error) {
         console.error('Error fetching products:', error);
-        addToast('Failed to load products', 'error');
       } finally {
         setLoading(false);
       }
     };
-
     fetchProducts();
-  }, [addToast]);
+  }, []);
 
   useEffect(() => {
     let filtered = [...products];

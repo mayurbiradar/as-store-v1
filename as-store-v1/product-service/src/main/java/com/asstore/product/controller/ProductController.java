@@ -35,7 +35,7 @@ public class ProductController {
     public List<Product> list() { return repo.findAll(); }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> get(@PathVariable UUID id) {
+    public ResponseEntity<Product> get(@PathVariable("id") UUID id) {
         Optional<Product> p = repo.findById(id);
         return p.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -78,7 +78,7 @@ public class ProductController {
     
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable("id") UUID id) {
         repo.deleteById(id);
         return ResponseEntity.noContent().build();
     }

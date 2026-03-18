@@ -12,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -30,7 +31,7 @@ public class Order {
 	@Column(nullable = false)
 	private UUID userId;
 
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name = "address_id", nullable = false)
 	private Address address;
 

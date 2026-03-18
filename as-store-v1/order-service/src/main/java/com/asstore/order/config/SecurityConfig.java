@@ -21,7 +21,7 @@ public class SecurityConfig {
     	.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                  .requestMatchers("/api/orders/revenue","/api/orders/count").hasRole("ADMIN")	
-                .requestMatchers("/api/orders/**","/api/addresses","/api/addresses/**").authenticated()
+                .requestMatchers("/api/orders/**").authenticated()
                 .anyRequest().permitAll()
             );
         return http.build();

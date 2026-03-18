@@ -37,7 +37,7 @@ public class AuthController {
     
     @PutMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Uncomment if using method security
-    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody Map<String, Object> updates) {
+    public ResponseEntity<?> updateUser(@PathVariable("id") String id, @RequestBody Map<String, Object> updates) {
         authService.updateUser(id, updates);
         return ResponseEntity.ok().build();
     }
@@ -78,7 +78,7 @@ public class AuthController {
     }
     
     @PutMapping("/users/update/{id}")
-    public ResponseEntity<?> editUser(@PathVariable String id, @RequestBody Map<String, Object> updates) {
+    public ResponseEntity<?> editUser(@PathVariable("id") String id, @RequestBody Map<String, Object> updates) {
         authService.editUser(id, updates);
         return ResponseEntity.ok().build();
     }

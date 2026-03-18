@@ -70,7 +70,7 @@ public class OrderController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Order> update(@PathVariable UUID id, @RequestBody Order order) {
+    public ResponseEntity<Order> update(@PathVariable("id") UUID id, @RequestBody Order order) {
         if (!repo.existsById(id)) return ResponseEntity.notFound().build();
         order.setId(id);
         return ResponseEntity.ok(repo.save(order));
@@ -78,7 +78,7 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
         if (!repo.existsById(id)) return ResponseEntity.notFound().build();
         repo.deleteById(id);
         return ResponseEntity.noContent().build();
@@ -106,7 +106,7 @@ public class OrderController {
 
     // Address Management Endpoints
     @GetMapping("/users/{userId}/addresses")
-    public List<Address> getUserAddresses(@PathVariable String userId, @RequestHeader("Authorization") String authHeader) {
+    public List<Address> getUserAddresses(@PathVariable("userId") String userId, @RequestHeader("Authorization") String authHeader) {
         // Verify the user is requesting their own addresses
         String token = authHeader.replace("Bearer ", "");
         String tokenUserId = jwtService.getUserId(token);
@@ -117,7 +117,7 @@ public class OrderController {
     }
 
     @PostMapping("/users/{userId}/addresses")
-    public Address createAddress(@PathVariable String userId, @RequestBody Address address, @RequestHeader("Authorization") String authHeader) {
+    public Address createAddress(@PathVariable("userId") String userId, @RequestBody Address address, @RequestHeader("Authorization") String authHeader) {
         // Verify the user is creating address for themselves
         String token = authHeader.replace("Bearer ", "");
         String tokenUserId = jwtService.getUserId(token);
@@ -130,7 +130,7 @@ public class OrderController {
     }
 
     @PutMapping("/users/{userId}/addresses/{addressId}")
-    public ResponseEntity<Address> updateAddress(@PathVariable String userId, @PathVariable UUID addressId, @RequestBody Address address, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<Address> updateAddress(@PathVariable("userId") String userId, @PathVariable("addressId") UUID addressId, @RequestBody Address address, @RequestHeader("Authorization") String authHeader) {
         // Verify the user owns this address
         String token = authHeader.replace("Bearer ", "");
         String tokenUserId = jwtService.getUserId(token);
@@ -150,7 +150,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/users/{userId}/addresses/{addressId}")
-    public ResponseEntity<Void> deleteAddress(@PathVariable String userId, @PathVariable UUID addressId, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<Void> deleteAddress(@PathVariable("userId") String userId, @PathVariable("addressId") UUID addressId, @RequestHeader("Authorization") String authHeader) {
         // Verify the user owns this address
         String token = authHeader.replace("Bearer ", "");
         String tokenUserId = jwtService.getUserId(token);
