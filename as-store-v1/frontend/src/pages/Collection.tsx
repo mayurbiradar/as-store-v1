@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { getProducts } from '../api/productApi';
 import { API_BASE_URL } from '../constants';
+import ImageModal from '../components/ImageModal';
 
 interface Product {
   id: number;
@@ -28,6 +29,9 @@ export default function Collection() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { cart, addToCart, updateQuantity } = useCart();
   const { addToast } = useToast();
+
+  const [selectedImage, setSelectedImage] = useState<{src: string, alt: string} | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -97,6 +101,11 @@ export default function Collection() {
 
   const getProductQuantity = (productId: number) => {
     return cart.find(item => item.id === productId)?.quantity || 0;
+  };
+
+  const handleImageClick = (imageSrc: string, imageAlt: string) => {
+    setSelectedImage({src: imageSrc, alt: imageAlt});
+    setIsModalOpen(true);
   };
 
   const categories = ['all', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
@@ -258,6 +267,7 @@ export default function Collection() {
                   onAddToCart={handleAddToCart}
                   quantity={getProductQuantity(product.id)}
                   onUpdateQuantity={updateQuantity}
+                  onImageClick={handleImageClick}
                 />
               ))}
             </div>
@@ -285,6 +295,13 @@ export default function Collection() {
           )}
         </div>
       </section>
+
+      <ImageModal
+        isOpen={isModalOpen}
+        imageSrc={selectedImage?.src || ''}
+        imageAlt={selectedImage?.alt || ''}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
@@ -295,9 +312,10 @@ interface ProductCardProps {
   onAddToCart: (product: Product) => void;
   quantity: number;
   onUpdateQuantity: (id: number, quantity: number) => void;
+  onImageClick: (imageSrc: string, imageAlt: string) => void;
 }
 
-function ProductCard({ product, viewMode, onAddToCart, quantity, onUpdateQuantity }: ProductCardProps) {
+function ProductCard({ product, viewMode, onAddToCart, quantity, onUpdateQuantity, onImageClick }: ProductCardProps) {
   const imageUrl = product.image.startsWith('/images/')
     ? `${API_BASE_URL}${product.image}`
     : product.image;
@@ -374,12 +392,19 @@ function ProductCard({ product, viewMode, onAddToCart, quantity, onUpdateQuantit
 
   return (
     <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 overflow-hidden border border-gray-100">
-      <Link to={`/product/${product.id}`} className="block">
+      <Link
+        to={`/product/${product.id}`}
+        className="block"
+        onClick={(e) => {
+          e.preventDefault();
+          onImageClick(imageUrl, product.name);
+        }}
+      >
         <div className="relative bg-gradient-to-br from-purple-100 to-pink-100 h-64 flex items-center justify-center overflow-hidden">
           <img
             src={imageUrl}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
           />
           {product.stock === 0 && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
