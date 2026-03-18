@@ -26,9 +26,9 @@ services:
     restart: on-failure
     environment:
       JWT_SECRET: ${JWT_SECRET:-superSecretKey}
-      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL:http://auth-service:8081}
-      PRODUCT_SERVICE_URL: ${PRODUCT_SERVICE_URL:http://product-service:8082}
-      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL:http://order-service:8083}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL:-http://auth-service:8081}
+      PRODUCT_SERVICE_URL: ${PRODUCT_SERVICE_URL:-http://product-service:8082}
+      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL:-http://order-service:8083}
       SERVER_PORT: 9090      # <-- gateway listens on 9090
     depends_on:
       - auth-service
