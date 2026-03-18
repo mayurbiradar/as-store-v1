@@ -1,4 +1,4 @@
-# /home/<user>/myshop/docker-compose.yml
+# /home/<user>/as-store-v1/docker-compose.yml
 # =============================================================
 
 version: "3.9"
@@ -11,8 +11,8 @@ services:
     container_name: as_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: asj
-      POSTGRES_USER: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-asj}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -46,8 +46,8 @@ services:
       # --- Common DB connection ------------------------------------
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: asj
-      DB_USER: postgres
+      DB_NAME: ${POSTGRES_DB:-asj}
+      DB_USER: ${POSTGRES_USER:-postgres}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-root}   # override by the global .env
       # --- Port ----------------------------------------------------
       SERVER_PORT: 8081
@@ -66,8 +66,8 @@ services:
     container_name: product-service
     restart: on-failure
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/asj           # <-- DNS name of the Postgres container
-      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-asj}           # <-- DNS name of the Postgres container
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-root}
       JWT_SECRET: ${JWT_SECRET:-auth_service_jwt_secret_change_in_prod_to_strong_secret_at_least_32_chars_long}
       SERVER_PORT: 8082
